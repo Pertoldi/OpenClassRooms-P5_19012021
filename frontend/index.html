@@ -6,6 +6,9 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <!-- Bootstrap CSS -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">	
+
     <link rel="stylesheet" href="css/reset.css"  type="text/css"/>
     <link rel="stylesheet" href="../css/main.css"  type="text/css"/>
 
@@ -13,46 +16,50 @@
 
 <body>
     <header>
-        
+        <div class="bg-beige">
+            <div class="container">
+              <div class="row">
+                <nav class="col navbar navbar-expand-lg navbar-dark">
+                  <a class="navbar-brand" href="#"><img src="logo.png" alt="logo du site Orinoco"></a>
+                  <button 
+                  class="navbar-toggler" 
+                  type="button" data-toggle="collapse" 
+                  data-target="#navbarContent" 
+                  aria-controls="navbarSupportedContent" 
+                  aria-expanded="false" 
+                  aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon text-dark"></span>
+                  </button>
+                  <div id="navbarContent" class="collapse navbar-collapse">
+                    <ul class="navbar-nav">
+                      <li class="nav-item active">
+                        <a class="nav-link text-dark" href="#">Accueil</a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link text-dark" href="#">Panier</a>
+                      </li>
+                    </ul>
+                  </div>
+                </nav>
+              </div>
+            </div>
+        </div>
     </header>
 
-    <script>
-        class Teddie {
-            constructor(teddieObj) {
-                this._id = teddieObj._id;
-                this.colors = teddieObj.colors;
-                this.description = teddieObj.description;
-                this.imageUrl = teddieObj.imageUrl;
-            }
-            addDom(id) {
-                // pour ajouter une métode qui ajoute l'objet au dom
-            }
-        }
+    <section id="vitrine" class="vitrine">
 
-        async function getResquest(url) {
-            let maRequest = new Request(url);
-            let Response = await fetch(maRequest);
-
-            if (Response.ok) { // if HTTP-status is 200-299
-                // get the response body (the method explained below)
-                let json = await Response.json();
-                return json;
-            } else {
-                console.error("HTTP-Error : " + Response.status, Response);
-            }
-        }
-
-        async function main() {
-            let datas = await getResquest("http://localhost:3000/api/teddies");
-            console.log(datas);
-            let MaVariable = new Teddie(datas[0]);
-            console.log(MaVariable._id);
-        }
-        main();
-    </script>
+    </section>
     
     <footer>
 
     </footer>
+
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.min.js" integrity="sha384-+YQ4JLhjyBLPDQt//I+STsc9iw4uQqACwlvpslubQzn4u2UU2UFM80nGisd026JF" crossorigin="anonymous"></script>
+    
+    <!-- JavaScript API Frontend -->
+    <script src="js/produit.js"></script>
 </body>
 </html>
