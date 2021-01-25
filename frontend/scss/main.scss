@@ -1,0 +1,8 @@
+@import "base/reset"; //In this order base - utils - component - layout - page -  etc vendors
+@import "base/typography";
+
+@import "utils/variables";
+@import "utils/minxins";
+
+@import "layout/header";
+@import "layout/footer";

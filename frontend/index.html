@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="fr">
+    
+<head>
+    <title>Orinoco</title>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="css/reset.css"  type="text/css"/>
+    <link rel="stylesheet" href="../css/main.css"  type="text/css"/>
+
+</head>
+
+<body>
+    <header>
+        
+    </header>
+
+    <script>
+        class Teddie {
+            constructor(teddieObj) {
+                this._id = teddieObj._id;
+                this.colors = teddieObj.colors;
+                this.description = teddieObj.description;
+                this.imageUrl = teddieObj.imageUrl;
+            }
+            addDom(id) {
+                // pour ajouter une métode qui ajoute l'objet au dom
+            }
+        }
+
+        async function getResquest(url) {
+            let maRequest = new Request(url);
+            let Response = await fetch(maRequest);
+
+            if (Response.ok) { // if HTTP-status is 200-299
+                // get the response body (the method explained below)
+                let json = await Response.json();
+                return json;
+            } else {
+                console.error("HTTP-Error : " + Response.status, Response);
+            }
+        }
+
+        async function main() {
+            let datas = await getResquest("http://localhost:3000/api/teddies");
+            console.log(datas);
+            let MaVariable = new Teddie(datas[0]);
+            console.log(MaVariable._id);
+        }
+        main();
+    </script>
+    
+    <footer>
+
+    </footer>
+</body>
+</html>
