@@ -2,25 +2,53 @@
 .vitrine {
     display: flex;
     flex-direction: column; 
+    align-items: center;
+    @media (min-width: $breakPoint-medium) {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
 }
 
 .cards {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: 25px;
+    margin-bottom: 25px;
     border: 1px solid #c4c4c4;
+    @media (min-width: $breakPoint-small) {
+        width: 90%;
+    }
+    @media (min-width: $breakPoint-medium) {
+        width: auto;
+        flex-direction: row;
+    }
     &__img {
         object-fit: cover;
         width: 100%;
-        justify-self: center;
+        @media (min-width: $breakPoint-medium) {
+            width: 300px;
+            min-width: 300px;//pour pallier aux bugs flexbox sur firefox
+            height: 200px;
+        }
     }
     &__text {
         display: flex;
         flex-wrap: wrap;
         margin: 5px 5px 0;
+        @media (min-width: $breakPoint-medium) {
+            height: 200px;
+            width: auto;
+            margin: 0 10px 0;
+            flex-direction: column;
+        }
         &--title {
             width: 100%;
+        }
+        &--description {
+            @media (min-width: $breakPoint-medium) {
+                margin: 10px 0 20px;
+            }
         }
         &--price {
             margin: 5px 0 10px 80%;
