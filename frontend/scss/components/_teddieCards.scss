@@ -1,0 +1,29 @@
+//Approche mobile-first
+.vitrine {
+    display: flex;
+    flex-direction: column; 
+}
+
+.cards {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 25px;
+    border: 1px solid #c4c4c4;
+    &__img {
+        object-fit: cover;
+        width: 100%;
+        justify-self: center;
+    }
+    &__text {
+        display: flex;
+        flex-wrap: wrap;
+        margin: 5px 5px 0;
+        &--title {
+            width: 100%;
+        }
+        &--price {
+            margin: 5px 0 10px 80%;
+        }
+    }
+}

@@ -8,15 +8,24 @@ class Teddie {
         this.colors = teddieObj.colors;
         this.description = teddieObj.description;
         this.imageUrl = teddieObj.imageUrl;
+        this.name = teddieObj.name;
+        this.price = teddieObj.price;
     }
     addDom() {
-        // pour ajouter une métode qui ajoute l'objet au dom
-        const card = document.createElement("div");
-        card.classList.add("card");
-        card.innerHTML = "test";
-        // mettre une img + div contenant titre(h2 ou h3), description(p), prix(span)
+        // ajoute la carte teddie dans le DOM
+        const cards = document.createElement("div");
+        cards.classList.add("cards");
 
-        vitrine.appendChild(card);
+        cards.innerHTML = `
+        <img class="cards__img" alt="photo d ourson en peluche" src= ${this.imageUrl}>
+        <div class="cards__text">
+            <h2 class="cards__text--title">${this.name}</h2>
+            <p class="cards__text--description">${this.description}</p>
+            <span class="cards__text--price">${this.price}€</span>
+        </div>
+        `;
+
+        vitrine.appendChild(cards);
     }
 }
 
@@ -43,13 +52,18 @@ async function main() {
     try {
         datas = await getResquest("http://localhost:3000/api/teddies");
         console.log(datas);
-        let teddieTest = new Teddie(datas[0]);
-        console.log(teddieTest._id);
-        teddieTest.addDom();
+
+        //Genration des teddies
+        let myTeddie = [];
+        for (let i = 0; i < datas.length; i++) {
+            myTeddie.push(new Teddie(datas[i]));
+            myTeddie[i].addDom();
+            console.log('test');
+        }
     } 
     catch (err) {
         console.error(err);
     };
     
 }
-main();// mettre la fonction dans un bloc try{asynFunction} catch (error) {}
+main();
