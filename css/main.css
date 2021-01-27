@@ -37,12 +37,18 @@ button {
 }
 
 h1, .h1 {
+  font-size: 1.5rem;
   margin-top: 10px;
   text-align: center;
 }
 
 h2 {
+  font-size: 1.2rem;
   margin-bottom: 4px;
+}
+
+h3 {
+  font-size: 1.1rem;
 }
 
 .vitrine {
@@ -93,6 +99,20 @@ h2 {
 
 .cards__text--price {
   margin: 5px 0 10px 80%;
+}
+
+footer {
+  background-color: #f3e9f1;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
 }
 
 .bg-beige {
