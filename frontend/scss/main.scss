@@ -4,9 +4,9 @@
 @import "utils/variables";
 @import "utils/minxins";
 
-@import "layout/header";
+@import "components/teddieCards";
+
+
 @import "layout/footer";
 
-.bg-beige {
-    background-color: #f3e9f1;
-}
+@import "vendors/modificationBootstrap";
