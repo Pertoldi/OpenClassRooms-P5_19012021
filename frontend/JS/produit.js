@@ -15,7 +15,6 @@ class Teddie {
         // ajoute la carte teddie dans le DOM
         const cards = document.createElement("div");
         cards.classList.add("cards");
-
         cards.innerHTML = `
         <img class="cards__img" alt="photo d ourson en peluche" src= ${this.imageUrl}>
         <div class="cards__text">
@@ -24,7 +23,6 @@ class Teddie {
             <span class="cards__text--price">${this.price}€</span>
         </div>
         `;
-
         vitrine.appendChild(cards);
     }
 }
@@ -63,7 +61,6 @@ async function main() {
     } 
     catch (err) {
         console.error(err);
-    };
-    
+    };   
 }
 main();
