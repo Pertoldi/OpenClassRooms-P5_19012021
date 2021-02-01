@@ -171,6 +171,7 @@ async function main() {
 				console.log("Le bouton à été clické");
 				userPanier.push(currentId);
 				localStorage.setItem("userPanier", userPanier);
+				alert("Le produit à été rajouté au panier.");
 				console.log("user panier :" + userPanier);
 				console.log("local storage: " + localStorage.getItem('userPanier'));
 			});
@@ -178,7 +179,10 @@ async function main() {
 
 		case 'panier.html':
 			console.log('on est sur la page panier.html');
-
+			// tableau des articles + prix total
+			// formulaire post avec: nom, prénom, adresse, ville, e-mail
+			// bouton submit 
+			
 			break;
 
 		default:
