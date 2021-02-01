@@ -3,26 +3,26 @@
     display: flex;
     flex-direction: column; 
     align-items: center;
-    @media (min-width: $breakPoint-medium) {
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: center;
-    }
 }
 
 .cards {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 25px;
-    border: 1px solid #c4c4c4;
-    @media (min-width: $breakPoint-small) {
-        width: 90%;
+    justify-content: center;
+    a { 
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 25px;
+        border: 1px solid #c4c4c4;
+        @media (min-width: $breakPoint-small) {
+            width: 90%;
+        }
+        @media (min-width: $breakPoint-medium) {
+            width: auto;
+            flex-direction: row;
+        }
     }
-    @media (min-width: $breakPoint-medium) {
-        width: auto;
-        flex-direction: row;
-    }
+
     &__img {
         object-fit: cover;
         width: 100%;
@@ -44,6 +44,9 @@
         }
         &--title {
             width: 100%;
+            @media (min-width: $breakPoint-medium) {
+                margin-top: 15px;
+            }
         }
         &--description {
             @media (min-width: $breakPoint-medium) {

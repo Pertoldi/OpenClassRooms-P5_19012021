@@ -69,21 +69,16 @@ h3 {
           align-items: center;
 }
 
-@media (min-width: 768px) {
-  .vitrine {
-    -webkit-box-orient: horizontal;
-    -webkit-box-direction: normal;
-        -ms-flex-direction: row;
-            flex-direction: row;
-    -ms-flex-wrap: wrap;
-        flex-wrap: wrap;
-    -webkit-box-pack: center;
-        -ms-flex-pack: center;
-            justify-content: center;
-  }
+.cards {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
 }
 
-.cards {
+.cards a {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -99,13 +94,13 @@ h3 {
 }
 
 @media (min-width: 576px) {
-  .cards {
+  .cards a {
     width: 90%;
   }
 }
 
 @media (min-width: 768px) {
-  .cards {
+  .cards a {
     width: auto;
     -webkit-box-orient: horizontal;
     -webkit-box-direction: normal;
@@ -154,6 +149,12 @@ h3 {
 }
 
 @media (min-width: 768px) {
+  .cards__text--title {
+    margin-top: 15px;
+  }
+}
+
+@media (min-width: 768px) {
   .cards__text--description {
     margin: 10px 0 20px;
   }
@@ -175,7 +176,7 @@ footer {
   -webkit-box-align: center;
       -ms-flex-align: center;
           align-items: center;
-  margin-bottom: 10px;
+  padding-bottom: 10px;
 }
 
 footer h3 {
