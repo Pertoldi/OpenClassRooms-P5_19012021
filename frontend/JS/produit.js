@@ -78,6 +78,25 @@ class Teddie {
 		vitrine.appendChild(btn);
 	}
 }
+
+class Panier  {
+	constructor(panier) {
+		this.panier = panier;
+	}
+	create() {
+		localStorage.setItem("panier", this.panier);
+	}
+	read() {
+		return localStorage.getItem("panier");
+	}
+	update(value) { //value = le nouvel id à ajouter dans le panier
+		this.panier.push(value);
+		localStorage.setItem("panier", this.panier);
+	}
+	delete() {
+
+	}
+}
 //FUNCTION GET
 async function getResquest(url) {
     let maRequest = new Request(url);
@@ -102,7 +121,7 @@ function catchPage() {
 }
 
 //FUNCTION CATCH URL PARAMETRE
-function catchParam() {
+function getParamId() {
 	let currentURL = document.location.href;
 	let param = currentURL.split('/');
 	param = param[param.length-1].split('?');
@@ -110,86 +129,99 @@ function catchParam() {
 	return param[1];
 }
 
+//FUNCTION PRETTY PRICE
+function prettyPrice(price) {
+	price = price/100;
+	return price;
+}
+
 //MAIN
 async function main() {
 	let datas; //Réponse GET au format JSON
 	let myTeddies = []; // tableau des teddies
-	var userPanier = []; // liste des éléments contenue dans le panier
+	var panier = new Panier([]); 
 
-	//Si le panier est vide on le crée
-	if (localStorage.length == 0) {
-		localStorage.setItem("userPanier", userPanier);
-		console.log("Le panier à été créer!");
+	//Si le panier est vide on le crée sinon on le remet à jour pour pas perdre d'information d'une page à l'autre
+	if (localStorage.getItem("panier") == null) {
+		panier.create();
 	} else {
-		if (localStorage.getItem('userPanier') != '') {
-			let memoryPanier = localStorage.getItem('userPanier').split(',');
-			for (let i = 0; i < memoryPanier.length; i++) {
-				userPanier.push(memoryPanier[i]);
+		if (panier.read().length != 0) {
+			let memoryPanier = panier.read().split(',');
+			for (let i in memoryPanier) {
+				panier.update(memoryPanier[i]);
 			}
-			console.log("Le panier exite déjà! userPanier = " + userPanier);
 		}
 	}
 
 	// Onrécupère les informations de l'API; methode GET
 	try {
 		datas = await getResquest("http://localhost:3000/api/teddies");
-		console.log(datas);
+		// on rempli la liste des teddies
+		for (let i = 0; i < datas.length; i++) {
+			myTeddies.push(new Teddie(datas[i]));
+			myTeddies[i].price = prettyPrice(myTeddies[i].price);	
+		}
+
+		//On execute un code différent en fonction de la page courrante.
+		switch (catchPage()) {
+			case 'index.html':
+				console.log('on est sur la page index.html');
+				for (let i = 0; i < datas.length; i++) {
+					myTeddies[i].addDom(true);						//On affiche tout les teddies 'true = isClickable'
+				}
+				console.log(myTeddies);
+				break;
+
+			case 'produit.html':
+				console.log('on est sur la page produit.html');
+				let teddieId = getParamId();
+				for (let i = 0; i < datas.length; i++) {
+					if (teddieId == myTeddies[i]._id) {
+						myTeddies[i].addDynamiqueTitle();
+						myTeddies[i].addDom();
+						myTeddies[i].addChoiceListAndBtn();
+					}
+				}
+				//au click du bouton:
+				const bouton = document.getElementById("buttonPanier");
+				bouton.addEventListener('click', function() {
+					panier.update(teddieId);
+					alert("Le produit à été rajouté au panier.");
+					console.log('read panier: ' + panier.read());
+				});
+				break;
+
+			case 'panier.html':
+				console.log('on est sur la page panier.html');
+				const table = document.createElement("table");
+				let sum = 0;
+				let tableText = "<tr><th>Nom</th><th>Prix</th></tr>";
+				for (let i of panier.read().split(',')) {
+					for (let t = 0; t < myTeddies.length; t++) {
+						if (i == myTeddies[t]._id) {
+							tableText = tableText + `<tr><th>${myTeddies[t].name}</th><th>${myTeddies[t].price}€</th></tr>`;
+							sum = sum + myTeddies[t].price;
+						}	
+					}
+				}
+				tableText = tableText + `<tr><th>Total</th><th>${sum}€</th></tr>`
+				table.innerHTML = tableText;
+				vitrine.appendChild(table);
+
+				// TODO: 
+				// formulaire post avec: nom, prénom, adresse, ville, e-mail        en HTML
+				// bouton submit 
+				
+				break;
+
+			default:
+				console.log('case: page nom trouvé -> ' + catchPage());
+				break;
+		}
+		//localStorage.clear();
+		console.log(localStorage);
 	} catch (err) {
 		console.error(err);
 	};
-
-	// on rempli la liste des teddies
-	for (let i = 0; i < datas.length; i++) {
-		myTeddies.push(new Teddie(datas[i]));		
-	}
-
-	//On execute un code différent en fonction de la page courrante.
-    switch (catchPage()) {
-		case 'index.html':
-			console.log('on est sur la page index.html');
-			for (let i = 0; i < datas.length; i++) {
-				myTeddies[i].addDom(true);						//On affiche tout les teddies 'true = isClickable'
-			}
-			console.log(myTeddies);
-			break;
-
-		case 'produit.html':
-			console.log('on est sur la page produit.html');
-			let teddieId = catchParam();
-			let currentId;
-			for (let i = 0; i < datas.length; i++) {
-				if (teddieId == myTeddies[i]._id) {
-					myTeddies[i].addDynamiqueTitle();
-					myTeddies[i].addDom();
-					myTeddies[i].addChoiceListAndBtn();
-					currentId = myTeddies[i]._id;
-				}
-			}
-			//au click du bouton:
-			const bouton = document.getElementById("buttonPanier");
-			bouton.addEventListener('click', function() {
-				console.log("Le bouton à été clické");
-				userPanier.push(currentId);
-				localStorage.setItem("userPanier", userPanier);
-				alert("Le produit à été rajouté au panier.");
-				console.log("user panier :" + userPanier);
-				console.log("local storage: " + localStorage.getItem('userPanier'));
-			});
-			break;
-
-		case 'panier.html':
-			console.log('on est sur la page panier.html');
-			// tableau des articles + prix total
-			// formulaire post avec: nom, prénom, adresse, ville, e-mail
-			// bouton submit 
-			
-			break;
-
-		default:
-			console.log('case: page nom trouvé -> ' + catchPage());
-			break;
-	}
-	//localStorage.clear();
-	console.log(localStorage);
 }
 main();
