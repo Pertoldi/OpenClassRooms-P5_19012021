@@ -79,7 +79,7 @@ class Teddie {
 	}
 }
 
-class Panier  {
+class Panier {
 	constructor(panier) {
 		this.panier = panier;
 	}
@@ -97,10 +97,24 @@ class Panier  {
 
 	}
 }
+
+// OBJECT DE REQUETE POST (cf: prepareBodyPost)
+let bodyPost = {
+	contact: {
+		firstName: "",
+		lastName: "",
+		address: "",
+		city: "",
+		email: ""
+	},
+	product: []
+}
+
+
 //FUNCTION GET
 async function getResquest(url) {
-    let maRequest = new Request(url);
-    let response = await fetch(maRequest);
+    let request = new Request(url);
+    let response = await fetch(request);
 
     if (response.ok) { // if HTTP-status is 200-299
         // get the response body
@@ -112,6 +126,59 @@ async function getResquest(url) {
     }
 }
 
+//FUNCTION POST
+async function postRequest(url, bodyPost) {  //voir objet BobyPost
+	let request = new Request(url);
+	let response = await fetch(request, {
+		method: "POST",
+		body: JSON.stringify(bodyPost),
+		  headers: {"Content-Type": "application/json"},
+		  credentials: "same-origin"
+	});
+
+	if (response.ok) { // if HTTP-status is 200-299
+		// get the response body
+		let json = await response.json();
+		return json;
+	} else {
+		let message = await response.text();
+		throw new Error("une erreur est survenu" + message);
+	}
+}
+
+//FUNCTION qui prépare le body de la requete POST
+function prepareBodyPost() {
+	let bodyPost = {
+		contact: {
+			firstName: "",
+			lastName: "",
+			address: "",
+			city: "",
+			email: ""
+		},
+		product: []
+	}
+	//TODO: attribuer les valeur du form dans l'oblet body response
+
+	let firstName = document.getElementById("form-nom").value;
+	console.log("firstName: " + firstName);
+	bodyPost.contact.firstName = firstName;
+	let lastName = document.getElementById("form-prenom").value;
+	bodyPost.contact.lastName = lastName;
+	let address = document.getElementById("form-email").value;
+	bodyPost.contact.address = address;
+	let city = document.getElementById("form-adresse").value;
+	bodyPost.contact.city = city;
+	let email = document.getElementById("form-ville").value;
+	bodyPost.contact.email = email;
+	console.log("On est dans la fopnction body request: " + bodyPost);
+	console.log("On est dans la fopnction body request: " + bodyPost.contact);
+	console.log("On est dans la fopnction body request: " + bodyPost.product);
+
+
+
+	return bodyPost;
+}
 //FUNCTION CURRENT PAGE - renvoie le nom de la page
 function catchPage() {
     let currentURL = document.location.href;
@@ -208,6 +275,24 @@ async function main() {
 				table.innerHTML = tableText;
 				vitrine.appendChild(table);
 
+				//a la validation du formulaire:
+				const boutonValidForm = document.getElementById("validForm");
+				boutonValidForm.addEventListener('click', async function() {
+					try {
+						console.log("form validé");
+						let bodyRequest = prepareBodyPost();
+						bodyRequest.product = "5beaaa8f1c9d440000a57d95,5beaa8bf1c9d440000a57d94";
+						console.log("body request: " + JSON.stringify(bodyRequest));
+						console.log("body request contact: " + bodyRequest.contact);
+						console.log("body request product: " + bodyRequest.product);
+						datas = await postRequest("http://localhost:3000/api/teddies/order", bodyRequest);
+						console.log(datas);
+					} catch (error) {
+						console.error(error);
+					}
+				});
+
+
 				// TODO: 
 				// formulaire post avec: nom, prénom, adresse, ville, e-mail        en HTML
 				// bouton submit 
@@ -220,8 +305,8 @@ async function main() {
 		}
 		//localStorage.clear();
 		console.log(localStorage);
-	} catch (err) {
-		console.error(err);
+	} catch (error) {
+		console.error(error);
 	};
 }
 main();
