@@ -1,5 +1,3 @@
-//INITIALISATION
-const vitrine = document.getElementById("vitrine");
 
 //OBJET Teddie
 class Teddie {
@@ -79,6 +77,7 @@ class Teddie {
 	}
 }
 
+//OBJECT Panier
 class Panier {
 	constructor(panier) {
 		this.panier = panier;
@@ -93,28 +92,30 @@ class Panier {
 		this.panier.push(value);
 		localStorage.setItem("panier", this.panier);
 	}
-	delete() {
-
+	delete(id) {
+		let memoryPanier = panier.read().split(',');
+		let indiceADelete = 0;
+		for (let i of memoryPanier) {
+			if (id == memoryPanier[i]) {
+				indiceADelete = i;
+				console.log("indice a delete " + indiceADelete);
+			}
+		}
+		memoryPanier.splice(indiceADelete, 1);
+		console.log("le nouveau panier", memoryPanier);
+		localStorage.setItem("panier", memoryPanier);
+		console.log(localStorage);
 	}
 }
 
-// OBJECT DE REQUETE POST (cf: prepareBodyPost)
-let bodyPost = {
-	contact: {
-		firstName: "",
-		lastName: "",
-		address: "",
-		city: "",
-		email: ""
-	},
-	product: []
-}
-
+//INITIALISATION
+const vitrine = document.getElementById("vitrine");
+var panier = new Panier([]); 
 
 //FUNCTION GET
 async function getResquest(url) {
-    let request = new Request(url);
-    let response = await fetch(request);
+    // let request = new Request(url);
+    let response = await fetch(url);//fetch(request)
 
     if (response.ok) { // if HTTP-status is 200-299
         // get the response body
@@ -126,14 +127,68 @@ async function getResquest(url) {
     }
 }
 
+//FUNCTION CURRENT PAGE - renvoie le nom de la page
+function catchPage() {
+    let currentURL = document.location.href;
+	let page = currentURL.split('/');
+	page = page[page.length-1].split('?');
+	return page[0];
+}
+
+//FUNCTION CATCH URL PARAMETRE
+function getParamId() {
+	let currentURL = document.location.href;
+	let param = currentURL.split('/');
+	param = param[param.length-1].split('?');
+	param = param[1].split('=');
+	return param[1];
+}
+
+//FUNCTION CREATE TABLE PANIER
+function createTablePanier(myTeddies) {
+	table = document.createElement("table");
+	let sum = 0;
+	let y = 0;
+	let tableText = "<tr><th>Nom</th><th>Prix</th><th></th></tr>";
+	for (let i of panier.read().split(',')) {
+		for (let t = 0; t < myTeddies.length; t++) {
+			if (i == myTeddies[t]._id) {
+				tableText = tableText + `<tr><th>${myTeddies[t].name}</th><th>${myTeddies[t].price}€</th><th><i class="fas fa-trash-alt" id="trash${y}" name="${i}"></i></th></tr>`;
+				sum = sum + myTeddies[t].price;
+				y++;
+				//TODO: eventlistener
+			}
+		}
+	}
+
+
+
+
+	tableText = tableText + `<tr><th>Total</th><th>${sum}€</th><th></th></tr>`
+	table.innerHTML = tableText;
+	vitrine.appendChild(table);
+
+	
+
+
+	
+}
+
+//FUNCTION PRETTY PRICE
+function prettyPrice(price) {
+	price = price/100;
+	return price;
+}
+
 //FUNCTION POST
-async function postRequest(url, bodyPost) {  //voir objet BobyPost
-	let request = new Request(url);
-	let response = await fetch(request, {
+async function postRequest(url, bodyPost) {
+	let response = await fetch(url, {
 		method: "POST",
-		body: JSON.stringify(bodyPost),
-		  headers: {"Content-Type": "application/json"},
-		  credentials: "same-origin"
+		body: bodyPost,
+		headers: {
+			'Accept': 'application/json',
+			'Content-Type': 'application/json'
+		}
 	});
 
 	if (response.ok) { // if HTTP-status is 200-299
@@ -156,57 +211,32 @@ function prepareBodyPost() {
 			city: "",
 			email: ""
 		},
-		product: []
+		products: []
 	}
-	//TODO: attribuer les valeur du form dans l'oblet body response
 
 	let firstName = document.getElementById("form-nom").value;
-	console.log("firstName: " + firstName);
 	bodyPost.contact.firstName = firstName;
 	let lastName = document.getElementById("form-prenom").value;
 	bodyPost.contact.lastName = lastName;
-	let address = document.getElementById("form-email").value;
-	bodyPost.contact.address = address;
+	let email = document.getElementById("form-email").value;
+	bodyPost.contact.email = email;
 	let city = document.getElementById("form-adresse").value;
 	bodyPost.contact.city = city;
-	let email = document.getElementById("form-ville").value;
-	bodyPost.contact.email = email;
-	console.log("On est dans la fopnction body request: " + bodyPost);
-	console.log("On est dans la fopnction body request: " + bodyPost.contact);
-	console.log("On est dans la fopnction body request: " + bodyPost.product);
+	let address = document.getElementById("form-ville").value;
+	bodyPost.contact.address = address;
 
+	let memoryPanier = panier.read().split(',');
+	for (let i = 0; i < memoryPanier.length; i++) {
+		bodyPost.products.push(memoryPanier[i]);
+	}
 
-
-	return bodyPost;
-}
-//FUNCTION CURRENT PAGE - renvoie le nom de la page
-function catchPage() {
-    let currentURL = document.location.href;
-	let page = currentURL.split('/');
-	page = page[page.length-1].split('?');
-	return page[0];
-}
-
-//FUNCTION CATCH URL PARAMETRE
-function getParamId() {
-	let currentURL = document.location.href;
-	let param = currentURL.split('/');
-	param = param[param.length-1].split('?');
-	param = param[1].split('=');
-	return param[1];
-}
-
-//FUNCTION PRETTY PRICE
-function prettyPrice(price) {
-	price = price/100;
-	return price;
+	return JSON.stringify(bodyPost);
 }
 
 //MAIN
 async function main() {
 	let datas; //Réponse GET au format JSON
 	let myTeddies = []; // tableau des teddies
-	var panier = new Panier([]); 
 
 	//Si le panier est vide on le crée sinon on le remet à jour pour pas perdre d'information d'une page à l'autre
 	if (localStorage.getItem("panier") == null) {
@@ -220,7 +250,7 @@ async function main() {
 		}
 	}
 
-	// Onrécupère les informations de l'API; methode GET
+	// Onrécupère les informations de l'API; methode GET (par défault)
 	try {
 		datas = await getResquest("http://localhost:3000/api/teddies");
 		// on rempli la liste des teddies
@@ -260,53 +290,50 @@ async function main() {
 
 			case 'panier.html':
 				console.log('on est sur la page panier.html');
-				const table = document.createElement("table");
-				let sum = 0;
-				let tableText = "<tr><th>Nom</th><th>Prix</th></tr>";
-				for (let i of panier.read().split(',')) {
-					for (let t = 0; t < myTeddies.length; t++) {
-						if (i == myTeddies[t]._id) {
-							tableText = tableText + `<tr><th>${myTeddies[t].name}</th><th>${myTeddies[t].price}€</th></tr>`;
-							sum = sum + myTeddies[t].price;
-						}	
-					}
-				}
-				tableText = tableText + `<tr><th>Total</th><th>${sum}€</th></tr>`
-				table.innerHTML = tableText;
-				vitrine.appendChild(table);
+				console.log("panier: ", panier," lenght: ", panier.read().split(',').length);
+				createTablePanier(myTeddies);
 
 				//a la validation du formulaire:
+				//TODO: faire une fonction control de formulaire
 				const boutonValidForm = document.getElementById("validForm");
-				boutonValidForm.addEventListener('click', async function() {
+				boutonValidForm.addEventListener('click', async function(event) {
+					event.preventDefault();
 					try {
-						console.log("form validé");
+						console.log("bouton cliqué");
 						let bodyRequest = prepareBodyPost();
-						bodyRequest.product = "5beaaa8f1c9d440000a57d95,5beaa8bf1c9d440000a57d94";
-						console.log("body request: " + JSON.stringify(bodyRequest));
-						console.log("body request contact: " + bodyRequest.contact);
-						console.log("body request product: " + bodyRequest.product);
-						datas = await postRequest("http://localhost:3000/api/teddies/order", bodyRequest);
-						console.log(datas);
+						postResponse = await postRequest("http://localhost:3000/api/teddies/order", bodyRequest);
+						console.log("Reponse POST orderID: " + postResponse.orderId);
+						localStorage.setItem("orderId", postResponse.orderId);
 					} catch (error) {
 						console.error(error);
 					}
 				});
 
-
-				// TODO: 
-				// formulaire post avec: nom, prénom, adresse, ville, e-mail        en HTML
-				// bouton submit 
-				
+				//au click sur les poubelles:
+				for (let i = 0; i < panier.read().split(',').length; i++) {
+					let trashIcon = document.getElementById(`trash${i}`);
+					console.log("trashIcon: ", trashIcon);
+					trashIcon.addEventListener('click', function() {
+						let id = trashIcon.getAttribute("name");
+						panier.delete(id);
+						window.location.href="panier.html";
+					});
+				}
 				break;
+
+			//TODO: case submit.html
 
 			default:
-				console.log('case: page nom trouvé -> ' + catchPage());
+				console.error('case: page nom trouvé -> ' + catchPage());
 				break;
 		}
-		//localStorage.clear();
 		console.log(localStorage);
 	} catch (error) {
 		console.error(error);
 	};
+	console.log("panier length",panier.read().split(',').length);
+	// let variable = new Teddie({_id: 0364736, colors: ['bleu', 'jaune'], description: "lorem ipsum dolor sit amet,lorem ipsum dolor sit amet,lorem ipsum dolor sit amet", imageUrl: "http://localhost:3000/images/teddy_5.jpg" , name: "toto", price: 3500}) ;
+	// variable.addDom();
+	// console.log(variable);
 }
 main();
