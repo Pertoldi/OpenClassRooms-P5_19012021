@@ -95,16 +95,13 @@ class Panier {
 	delete(id) {
 		let memoryPanier = panier.read().split(',');
 		let indiceADelete = 0;
-		for (let i of memoryPanier) {
+		for (let i in memoryPanier) {
 			if (id == memoryPanier[i]) {
 				indiceADelete = i;
-				console.log("indice a delete " + indiceADelete);
 			}
 		}
 		memoryPanier.splice(indiceADelete, 1);
-		console.log("le nouveau panier", memoryPanier);
 		localStorage.setItem("panier", memoryPanier);
-		console.log(localStorage);
 	}
 }
 
@@ -147,31 +144,23 @@ function getParamId() {
 //FUNCTION CREATE TABLE PANIER
 function createTablePanier(myTeddies) {
 	table = document.createElement("table");
+	table.classList.add("table");
 	let sum = 0;
 	let y = 0;
-	let tableText = "<tr><th>Nom</th><th>Prix</th><th></th></tr>";
+	let tableText = "<thead class='table__titre'><tr><th>Nom</th><th>Prix</th><th></th></tr></thead>";
 	for (let i of panier.read().split(',')) {
 		for (let t = 0; t < myTeddies.length; t++) {
 			if (i == myTeddies[t]._id) {
 				tableText = tableText + `<tr><th>${myTeddies[t].name}</th><th>${myTeddies[t].price}€</th><th><i class="fas fa-trash-alt" id="trash${y}" name="${i}"></i></th></tr>`;
 				sum = sum + myTeddies[t].price;
 				y++;
-				//TODO: eventlistener
 			}
 		}
 	}
-
-
-
-
+	localStorage.setItem("orderPreice", sum);
 	tableText = tableText + `<tr><th>Total</th><th>${sum}€</th><th></th></tr>`
 	table.innerHTML = tableText;
 	vitrine.appendChild(table);
-
-	
-
-
-	
 }
 
 //FUNCTION PRETTY PRICE
@@ -214,15 +203,15 @@ function prepareBodyPost() {
 		products: []
 	}
 
-	let firstName = document.getElementById("form-nom").value;
+	let firstName = document.getElementById("form-prenom").value;
 	bodyPost.contact.firstName = firstName;
-	let lastName = document.getElementById("form-prenom").value;
+	let lastName = document.getElementById("form-nom").value;
 	bodyPost.contact.lastName = lastName;
 	let email = document.getElementById("form-email").value;
 	bodyPost.contact.email = email;
-	let city = document.getElementById("form-adresse").value;
+	let city = document.getElementById("form-ville").value;
 	bodyPost.contact.city = city;
-	let address = document.getElementById("form-ville").value;
+	let address = document.getElementById("form-adresse").value;
 	bodyPost.contact.address = address;
 
 	let memoryPanier = panier.read().split(',');
@@ -231,6 +220,49 @@ function prepareBodyPost() {
 	}
 
 	return JSON.stringify(bodyPost);
+}
+
+//FUNCTION CONTROL FORM
+function controlForm() {
+	//On recupere les donnes du form
+	console.log("VEFICATION DU FORMULAIRE");
+	let lastName = document.getElementById("form-nom").value;
+	let firstName = document.getElementById("form-prenom").value;
+	let email = document.getElementById("form-email").value;
+	let address = document.getElementById("form-adresse").value;
+	let city = document.getElementById("form-ville").value;
+	let isOk = true;
+	let messageAlert = "";
+	let checkString = /^[a-zA-Z]+[-| ]?[a-zA-Z]*$/;		//Accepte "mots-mots" || "mots mots"
+	let checkEmail = /^[a-zA-Z0-9]+@[a-z]+\.[a-z]+$/;
+	let checkAdrress = /[0-9]*,?[a-zA-Z]+-? ?[a-zA-Z]*/;
+	let checkCity = /^[a-zA-Z]+-?[a-zA-Z]*-?[a-zA-Z]*/;
+	//On test les differents imputs
+	if (!checkString.test(lastName)) {
+		messageAlert = "Champs nom invalide \n";
+		isOk = false;
+	}
+	if (!checkString.test(firstName)) {
+		messageAlert += "Champs prénom invalide \n";
+		isOk = false;
+	}
+	if (!checkEmail.test(email)) {
+		messageAlert += "Champs email invalide \n";
+		isOk = false;
+	}
+	if (!checkAdrress.test(address)) {
+		messageAlert += "Champs adresse invalide \n";
+		isOk = false;
+	}
+	if (!checkCity.test(city)) {
+		messageAlert += "Champs ville invalide \n";
+		isOk = false;
+	}
+
+	if (!isOk) {
+		alert(messageAlert);
+	}
+	return isOk;
 }
 
 //MAIN
@@ -294,34 +326,40 @@ async function main() {
 				createTablePanier(myTeddies);
 
 				//a la validation du formulaire:
-				//TODO: faire une fonction control de formulaire
 				const boutonValidForm = document.getElementById("validForm");
 				boutonValidForm.addEventListener('click', async function(event) {
+					console.log("bouton cliqué");
 					event.preventDefault();
-					try {
-						console.log("bouton cliqué");
-						let bodyRequest = prepareBodyPost();
-						postResponse = await postRequest("http://localhost:3000/api/teddies/order", bodyRequest);
-						console.log("Reponse POST orderID: " + postResponse.orderId);
-						localStorage.setItem("orderId", postResponse.orderId);
-					} catch (error) {
-						console.error(error);
+					if (controlForm()) {
+						try {
+							let bodyRequest = prepareBodyPost();
+							postResponse = await postRequest("http://localhost:3000/api/teddies/order", bodyRequest);
+							console.log("Reponse POST orderID: " + postResponse.orderId);
+							localStorage.setItem("orderId", postResponse.orderId);
+							//window.location.href="submit.html";
+						} catch (error) {
+							console.error(error);
+						}
 					}
 				});
 
-				//au click sur les poubelles:
-				for (let i = 0; i < panier.read().split(',').length; i++) {
-					let trashIcon = document.getElementById(`trash${i}`);
-					console.log("trashIcon: ", trashIcon);
-					trashIcon.addEventListener('click', function() {
-						let id = trashIcon.getAttribute("name");
-						panier.delete(id);
-						window.location.href="panier.html";
-					});
+				//au click sur les Icones poubelles si le panier n'est pas vide:
+				if (panier.read().split(',') != "") {
+					for (let i = 0; i < panier.read().split(',').length; i++) {
+						let trashIcon = document.getElementById(`trash${i}`);
+						console.log("trashIcon: ", trashIcon);
+						trashIcon.addEventListener('click', function() {
+							let id = trashIcon.getAttribute("name");
+							panier.delete(id);
+							window.location.href="panier.html";
+						});
+					}
 				}
 				break;
 
-			//TODO: case submit.html
+			case 'submit.html':
+
+
 
 			default:
 				console.error('case: page nom trouvé -> ' + catchPage());
@@ -331,9 +369,5 @@ async function main() {
 	} catch (error) {
 		console.error(error);
 	};
-	console.log("panier length",panier.read().split(',').length);
-	// let variable = new Teddie({_id: 0364736, colors: ['bleu', 'jaune'], description: "lorem ipsum dolor sit amet,lorem ipsum dolor sit amet,lorem ipsum dolor sit amet", imageUrl: "http://localhost:3000/images/teddy_5.jpg" , name: "toto", price: 3500}) ;
-	// variable.addDom();
-	// console.log(variable);
 }
 main();
