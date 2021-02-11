@@ -78,6 +78,12 @@ h3 {
           justify-content: center;
 }
 
+@media (min-width: 576px) {
+  .cards {
+    width: 90%;
+  }
+}
+
 .cards a {
   display: -webkit-box;
   display: -ms-flexbox;
@@ -93,19 +99,19 @@ h3 {
   border: 1px solid #c4c4c4;
 }
 
-@media (min-width: 576px) {
-  .cards a {
-    width: 90%;
-  }
-}
-
 @media (min-width: 768px) {
   .cards a {
-    width: auto;
     -webkit-box-orient: horizontal;
     -webkit-box-direction: normal;
         -ms-flex-direction: row;
             flex-direction: row;
+    width: 100%;
+  }
+}
+
+@media (min-width: 992px) {
+  .cards a {
+    max-width: 1100px;
   }
 }
 
@@ -130,12 +136,13 @@ h3 {
   -ms-flex-wrap: wrap;
       flex-wrap: wrap;
   margin: 5px 5px 0;
+  width: 90%;
 }
 
 @media (min-width: 768px) {
   .cards__text {
+    width: 100%;
     height: 200px;
-    width: auto;
     margin: 0 10px 0;
     -webkit-box-orient: vertical;
     -webkit-box-direction: normal;
@@ -187,6 +194,10 @@ footer li {
   margin-bottom: 4px;
 }
 
+body {
+  min-height: 100%;
+}
+
 .bg-beige {
   background-color: #f3e9f1;
 }
@@ -197,5 +208,22 @@ footer li {
 
 .navbar-expand-lg .navbar-nav .nav-link {
   padding-left: 2.5rem;
+}
+
+.table {
+  width: 300px;
+}
+
+@media (min-width: 768px) {
+  .formPanier {
+    width: 80%;
+    margin: auto;
+  }
+}
+
+@media (min-width: 992px) {
+  .formPanier {
+    width: 750px;
+  }
 }
 /*# sourceMappingURL=main.css.map */

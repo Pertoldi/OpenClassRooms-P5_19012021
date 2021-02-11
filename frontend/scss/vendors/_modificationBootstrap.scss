@@ -11,3 +11,18 @@
     padding-left: 2.5rem;
 }
 
+//TABLE page panier.html
+.table {
+    width: 300px;
+}
+
+.formPanier {
+    @media (min-width: $breakPoint-medium) {
+        width: 80%;
+        margin: auto;
+    }
+    @media (min-width: $breakPoint-large) {
+        width: 750px;
+    }
+}
+
