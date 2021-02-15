@@ -143,7 +143,7 @@ function getParamId() {
 
 //FUNCTION CREATE TABLE PANIER
 function createTablePanier(myTeddies) {
-	table = document.createElement("table");
+	const table = document.createElement("table");
 	table.classList.add("table");
 	let sum = 0;
 	let y = 0;
@@ -157,7 +157,7 @@ function createTablePanier(myTeddies) {
 			}
 		}
 	}
-	localStorage.setItem("orderPreice", sum);
+	localStorage.setItem("orderPrice", sum);
 	tableText = tableText + `<tr><th>Total</th><th>${sum}€</th><th></th></tr>`
 	table.innerHTML = tableText;
 	vitrine.appendChild(table);
@@ -179,7 +179,6 @@ async function postRequest(url, bodyPost) {
 			'Content-Type': 'application/json'
 		}
 	});
-
 	if (response.ok) { // if HTTP-status is 200-299
 		// get the response body
 		let json = await response.json();
@@ -188,6 +187,7 @@ async function postRequest(url, bodyPost) {
 		let message = await response.text();
 		throw new Error("une erreur est survenu" + message);
 	}
+	
 }
 
 //FUNCTION qui prépare le body de la requete POST
@@ -233,10 +233,10 @@ function controlForm() {
 	let city = document.getElementById("form-ville").value;
 	let isOk = true;
 	let messageAlert = "";
-	let checkString = /^[a-zA-Z]+[-| ]?[a-zA-Z]*$/;		//Accepte "mots-mots" || "mots mots"
-	let checkEmail = /^[a-zA-Z0-9]+@[a-z]+\.[a-z]+$/;
-	let checkAdrress = /[0-9]*,?[a-zA-Z]+-? ?[a-zA-Z]*/;
-	let checkCity = /^[a-zA-Z]+-?[a-zA-Z]*-?[a-zA-Z]*/;
+	let checkString = /^[a-zA-Zéèàê]+[-| ]?[a-zA-Zéèàê]*$/;		//Accepte "mots-mots" || "mots mots"
+	let checkEmail = /^[a-zA-Z0-9éèàê]+@[a-zéèàê]+\.[a-z]+$/;
+	let checkAdrress = /^[0-9]*[ ]?[a-zA-Zéèàê]*[,]?[ ]?[a-zA-Zéèàê]+([-| ]?[a-zA-Zéèàê])*$/; 
+	let checkCity = /^[a-zA-Zéèàê]+-?[a-zA-Zéèàê]*-?[a-zA-Zéèàê]*$/;
 	//On test les differents imputs
 	if (!checkString.test(lastName)) {
 		messageAlert = "Champs nom invalide \n";
@@ -263,6 +263,19 @@ function controlForm() {
 		alert(messageAlert);
 	}
 	return isOk;
+}
+
+function confirmOrder() {
+	//TODO const   créer un oblet à ajouter à vitrine pour facilité le css
+	const feedBack = document.createElement("div");
+	feedBack.classList.add("feedBack");
+
+	if (panier.read().split(',') == "") {
+		feedBack.innerHTML = `Votre panier est vide`;
+	}else {
+		feedBack.innerHTML = `<h1>Merci pour votre achat!</h1> \n <span> Commande numéro :</br> ${localStorage.getItem("orderId")} </br></br> Pour un total de : ${localStorage.getItem("orderPrice")}€</span>`;
+	}
+	vitrine.appendChild(feedBack);
 }
 
 //MAIN
@@ -322,7 +335,6 @@ async function main() {
 
 			case 'panier.html':
 				console.log('on est sur la page panier.html');
-				console.log("panier: ", panier," lenght: ", panier.read().split(',').length);
 				createTablePanier(myTeddies);
 
 				//a la validation du formulaire:
@@ -330,13 +342,13 @@ async function main() {
 				boutonValidForm.addEventListener('click', async function(event) {
 					console.log("bouton cliqué");
 					event.preventDefault();
-					if (controlForm()) {
+					if ((controlForm()) && (panier.read().split(',') != "")) {
 						try {
 							let bodyRequest = prepareBodyPost();
 							postResponse = await postRequest("http://localhost:3000/api/teddies/order", bodyRequest);
 							console.log("Reponse POST orderID: " + postResponse.orderId);
 							localStorage.setItem("orderId", postResponse.orderId);
-							//window.location.href="submit.html";
+							window.location.href="commande.html";
 						} catch (error) {
 							console.error(error);
 						}
@@ -347,7 +359,6 @@ async function main() {
 				if (panier.read().split(',') != "") {
 					for (let i = 0; i < panier.read().split(',').length; i++) {
 						let trashIcon = document.getElementById(`trash${i}`);
-						console.log("trashIcon: ", trashIcon);
 						trashIcon.addEventListener('click', function() {
 							let id = trashIcon.getAttribute("name");
 							panier.delete(id);
@@ -357,9 +368,9 @@ async function main() {
 				}
 				break;
 
-			case 'submit.html':
-
-
+			case 'commande.html':
+				confirmOrder();
+				break;
 
 			default:
 				console.error('case: page nom trouvé -> ' + catchPage());
