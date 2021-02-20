@@ -107,7 +107,7 @@ class Panier {
 
 //INITIALISATION
 const vitrine = document.getElementById("vitrine");
-var panier = new Panier([]); 
+var panier = new Panier([]);
 
 //FUNCTION GET
 async function getResquest(url) {
@@ -222,7 +222,7 @@ function prepareBodyPost() {
 	return JSON.stringify(bodyPost);
 }
 
-//FUNCTION CONTROL FORM
+//FUNCTION CONTROL DU FORM
 function controlForm() {
 	//On recupere les donnes du form
 	console.log("VEFICATION DU FORMULAIRE");
@@ -265,6 +265,7 @@ function controlForm() {
 	return isOk;
 }
 
+//FUNCTION Feed back de la commande
 function confirmOrder() {
 	//TODO const   créer un oblet à ajouter à vitrine pour facilité le css
 	const feedBack = document.createElement("div");
@@ -273,17 +274,14 @@ function confirmOrder() {
 	if (panier.read().split(',') == "") {
 		feedBack.innerHTML = `Votre panier est vide`;
 	}else {
-		feedBack.innerHTML = `<h1>Merci pour votre achat!</h1> \n <span> Commande numéro :</br> ${localStorage.getItem("orderId")} </br></br> Pour un total de : ${localStorage.getItem("orderPrice")}€</span>`;
+		feedBack.innerHTML = `<h1>Merci pour votre achat!</h1> \n <span> Commande numéro :</br> ${localStorage.getItem("orderId")} </br></br> Vous en avez eu pour un total de : ${localStorage.getItem("orderPrice")}€</span>`;
 	}
+	vitrine.classList.add("mb-4");
 	vitrine.appendChild(feedBack);
 }
 
-//MAIN
-async function main() {
-	let datas; //Réponse GET au format JSON
-	let myTeddies = []; // tableau des teddies
-
-	//Si le panier est vide on le crée sinon on le remet à jour pour pas perdre d'information d'une page à l'autre
+//FUNCTION - Si le panier est vide on le crée sinon on le remet à jour pour ne pas perdre d'information d'une page à l'autre
+function initPanier() {
 	if (localStorage.getItem("panier") == null) {
 		panier.create();
 	} else {
@@ -294,6 +292,12 @@ async function main() {
 			}
 		}
 	}
+}
+
+//MAIN
+async function main() {
+	let datas; //Réponse GET au format JSON
+	let myTeddies = []; // tableau des teddies
 
 	// Onrécupère les informations de l'API; methode GET (par défault)
 	try {
@@ -303,11 +307,13 @@ async function main() {
 			myTeddies.push(new Teddie(datas[i]));
 			myTeddies[i].price = prettyPrice(myTeddies[i].price);	
 		}
+		
+		initPanier();
 
 		//On execute un code différent en fonction de la page courrante.
 		switch (catchPage()) {
 			case 'index.html':
-				console.log('on est sur la page index.html');
+				console.log('On est sur la page index.html !');
 				for (let i = 0; i < datas.length; i++) {
 					myTeddies[i].addDom(true);						//On affiche tout les teddies 'true = isClickable'
 				}
@@ -315,7 +321,7 @@ async function main() {
 				break;
 
 			case 'produit.html':
-				console.log('on est sur la page produit.html');
+				console.log('On est sur la page produit.html !');
 				let teddieId = getParamId();
 				for (let i = 0; i < datas.length; i++) {
 					if (teddieId == myTeddies[i]._id) {
@@ -328,13 +334,13 @@ async function main() {
 				const bouton = document.getElementById("buttonPanier");
 				bouton.addEventListener('click', function() {
 					panier.update(teddieId);
-					alert("Le produit à été rajouté au panier.");
-					console.log('read panier: ' + panier.read());
+					alert("Le produit à été rajouté au panier !");
+					console.log('Read panier: ' + panier.read());
 				});
 				break;
 
 			case 'panier.html':
-				console.log('on est sur la page panier.html');
+				console.log('On est sur la page panier.html !');
 				createTablePanier(myTeddies);
 
 				//a la validation du formulaire:
@@ -342,9 +348,13 @@ async function main() {
 				boutonValidForm.addEventListener('click', async function(event) {
 					console.log("bouton cliqué");
 					event.preventDefault();
-					if ((controlForm()) && (panier.read().split(',') != "")) {
+					if ((controlForm())) {
+						if (panier.read().split(',') == "") {
+							alert('Votre panier est vide !')
+						} else {
 						try {
 							let bodyRequest = prepareBodyPost();
+							console.log("Body request is", bodyRequest);
 							postResponse = await postRequest("http://localhost:3000/api/teddies/order", bodyRequest);
 							console.log("Reponse POST orderID: " + postResponse.orderId);
 							localStorage.setItem("orderId", postResponse.orderId);
@@ -352,7 +362,7 @@ async function main() {
 						} catch (error) {
 							console.error(error);
 						}
-					}
+					}}
 				});
 
 				//au click sur les Icones poubelles si le panier n'est pas vide:
@@ -369,14 +379,15 @@ async function main() {
 				break;
 
 			case 'commande.html':
+				console.log('On est sur la page commande.html !');
 				confirmOrder();
+				localStorage.clear();
 				break;
 
 			default:
 				console.error('case: page nom trouvé -> ' + catchPage());
 				break;
 		}
-		console.log(localStorage);
 	} catch (error) {
 		console.error(error);
 	};
